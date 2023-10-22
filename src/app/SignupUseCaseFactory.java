@@ -8,6 +8,13 @@ import use_case.signup.SignupUserDataAccessInterface;
 import entity.CommonUserFactory;
 import entity.UserFactory;
 import interface_adapter.*;
+import interface_adapter.clear_users.ClearController;
+import interface_adapter.clear_users.ClearPresenter;
+import interface_adapter.clear_users.ClearViewModel;
+import use_case.clear_users.ClearInputBoundary;
+import use_case.clear_users.ClearInteractor;
+import use_case.clear_users.ClearOutputBoundary;
+import use_case.clear_users.ClearUserDataAccessInterface;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
@@ -19,14 +26,24 @@ import java.io.IOException;
 public class SignupUseCaseFactory {
 
     /** Prevent instantiation. */
-    private SignupUseCaseFactory() {}
+    private SignupUseCaseFactory() {
+    }
 
     public static SignupView create(
-            ViewManagerModel viewManagerModel, LoginViewModel loginViewModel, SignupViewModel signupViewModel, SignupUserDataAccessInterface userDataAccessObject) {
+            ViewManagerModel viewManagerModel, LoginViewModel loginViewModel, SignupViewModel signupViewModel,
+            SignupUserDataAccessInterface userDataAccessObject, ClearViewModel clearViewModel) {
 
         try {
-            SignupController signupController = createUserSignupUseCase(viewManagerModel, signupViewModel, loginViewModel, userDataAccessObject);
-            return new SignupView(signupController, signupViewModel);
+            SignupController signupController = createUserSignupUseCase(viewManagerModel, signupViewModel,
+                    loginViewModel, userDataAccessObject);
+
+            // Cast the SignupUserDataAccessInterface to a ClearUserDataAccessInterface
+            ClearUserDataAccessInterface userDataAccessObject2 = (ClearUserDataAccessInterface) userDataAccessObject;
+
+            ClearController clearController = createClearUsersUseCase(viewManagerModel, signupViewModel, clearViewModel,
+                    userDataAccessObject2);
+
+            return new SignupView(signupController, clearController, signupViewModel, clearViewModel);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Could not open user data file.");
         }
@@ -34,10 +51,13 @@ public class SignupUseCaseFactory {
         return null;
     }
 
-    private static SignupController createUserSignupUseCase(ViewManagerModel viewManagerModel, SignupViewModel signupViewModel, LoginViewModel loginViewModel, SignupUserDataAccessInterface userDataAccessObject) throws IOException {
+    private static SignupController createUserSignupUseCase(ViewManagerModel viewManagerModel,
+            SignupViewModel signupViewModel, LoginViewModel loginViewModel,
+            SignupUserDataAccessInterface userDataAccessObject) throws IOException {
 
         // Notice how we pass this method's parameters to the Presenter.
-        SignupOutputBoundary signupOutputBoundary = new SignupPresenter(viewManagerModel, signupViewModel, loginViewModel);
+        SignupOutputBoundary signupOutputBoundary = new SignupPresenter(viewManagerModel, signupViewModel,
+                loginViewModel);
 
         UserFactory userFactory = new CommonUserFactory();
 
@@ -45,5 +65,16 @@ public class SignupUseCaseFactory {
                 userDataAccessObject, signupOutputBoundary, userFactory);
 
         return new SignupController(userSignupInteractor);
+    }
+
+    private static ClearController createClearUsersUseCase(ViewManagerModel viewManagerModel,
+            SignupViewModel signupViewModel, ClearViewModel clearViewModel,
+            ClearUserDataAccessInterface userDataAccessObject) throws IOException {
+
+        ClearOutputBoundary clearOutputBoundary = new ClearPresenter(clearViewModel, signupViewModel, viewManagerModel);
+
+        ClearInputBoundary userClearInteractor = new ClearInteractor(userDataAccessObject, clearOutputBoundary);
+
+        return new ClearController(userClearInteractor);
     }
 }

@@ -1,6 +1,9 @@
 package use_case.clear_users;
 
-// TODO Complete me
+// Complete me
 
 public interface ClearUserDataAccessInterface {
+    Object[] deleteAllUsers();
+
+    boolean isEmpty();
 }
