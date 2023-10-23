@@ -5,7 +5,7 @@ import interface_adapter.signup.SignupViewModel;
 import use_case.clear_users.ClearOutputBoundary;
 import use_case.clear_users.ClearOutputData;
 
-// TODO Complete me
+// Complete me
 
 public class ClearPresenter implements ClearOutputBoundary {
 
@@ -35,6 +35,6 @@ public class ClearPresenter implements ClearOutputBoundary {
     public void prepareFailView(String error) {
         ClearState clearState = clearViewModel.getState();
         clearState.setDeletedError(error);
-        signupViewModel.firePropertyChanged();
+        clearViewModel.firePropertyChanged();
     }
 }
