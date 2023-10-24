@@ -98,9 +98,9 @@ public class SignupView extends JPanel implements ActionListener, PropertyChange
                                     result += (String) users[i] + "\n";
                                 }
 
-                                JOptionPane.showConfirmDialog(null, result);
+                                JOptionPane.showConfirmDialog(SignupView.this, result);
                             } catch (Exception exception) {
-                                JOptionPane.showConfirmDialog(null, clearState.getDeletedError());
+                                JOptionPane.showConfirmDialog(SignupView.this, clearState.getDeletedError());
                             }
 
                         }
